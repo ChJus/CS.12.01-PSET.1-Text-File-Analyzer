@@ -1,6 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/roundcorner"
+        android:backgroundTint="#1F1F1F"
+        android:src="@drawable/trash"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/trash" />
+
+    <ImageButton
+        android:id="@+id/saveButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/roundcorner"
+        android:backgroundTint="#1F1F1F"
+        android:src="@drawable/save"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/save" />
+
+    <TextView
+        android:id="@+id/filenameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:fontFamily="@font/dm_sans_bold"
+        android:text="file.txt"
+        android:textAlignment="textStart"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        android:typeface="sans"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <GridView
+        android:id="@+id/generalDataView"
+        android:layout_width="410dp"
+        android:layout_height="62dp"
+        android:layout_marginTop="28dp"
+        android:numColumns="3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filenameText" />
+
+    <ListView
+        android:id="@+id/uniqueWordsList"
+        android:layout_width="375dp"
+        android:layout_height="216dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/uniqueWordsLabel" />
+
+    <TextView
+        android:id="@+id/uniqueWordsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/dm_sans_bold"
+        android:text="Unique words:"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/generalDataView" />
+
+    <TextView
+        android:id="@+id/spinnerLabel"
+        android:layout_width="111dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/dm_sans_bold"
+        android:gravity="center"
+        android:text="Temperature:"
+        android:textAlignment="center"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/uniqueWordsList" />
+
+    <Spinner
+        android:id="@+id/temperatureSpinner"
+        android:layout_width="137dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/spinnerLabel"
+        app:layout_constraintStart_toEndOf="@+id/spinnerLabel"
+        app:layout_constraintTop_toTopOf="@+id/spinnerLabel" />
+
+    <TextView
+        android:id="@+id/temperatureParagraph"
+        android:layout_width="377dp"
+        android:layout_height="162dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/dm_sans"
+        android:scrollIndicators="right"
+        android:scrollbars="vertical"
+        android:text="TextView"
+        android:textSize="16sp"
+        android:typeface="sans"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/temperatureSpinner" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
