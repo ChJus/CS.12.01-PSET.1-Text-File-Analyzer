@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -199,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
             temperatureParagraph = findViewById(R.id.temperatureParagraph);
 
             filenameText.setText(filename);
+            temperatureParagraph.setMovementMethod(new ScrollingMovementMethod());
 
             Spanned[] values = {Html.fromHtml("<font color=#3772F1>" + wordsList.size() + "</font><font color=#000000> words</font>"),
                     Html.fromHtml("<font color=#3772F1>" + sentenceCount + "</font><font color=#000000> sentences</font>"),
@@ -235,15 +237,15 @@ public class MainActivity extends AppCompatActivity {
                     // Get temperature from the 0-indexed position of selected item in the dropdown.
                     double temperature = Double.parseDouble(tempValues[pos]);
                     String paragraph = "";
-                    System.out.println(wordFrequencies);
                     for (int i = 0; i < 200; i++) {
-                        String word = "";
-                        int index = 0;
+                        int index;
                         do {
                             index = random.nextInt(wordsList.size());
-                        } while ((double) wordFrequencies.indexOf(new Word(wordsList.get(index), 0)) / wordFrequencies.size() <= temperature);
-                        paragraph += word;
+                        } while (((double) wordFrequencies.indexOf(new Word(wordsList.get(index), 0)) / wordFrequencies.size()) > temperature);
+                        System.out.println(((double) wordFrequencies.indexOf(new Word(wordsList.get(index), 0)) / wordFrequencies.size()));
+                        paragraph += wordsList.get(index).toLowerCase().trim() + " ";
                     }
+                    temperatureParagraph.setText(paragraph);
                 }
 
                 @Override
