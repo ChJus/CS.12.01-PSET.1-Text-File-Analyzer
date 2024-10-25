@@ -1,6 +1,5 @@
 package com.example.cs1201_pset1_text_file_analyzer;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -36,8 +35,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+    Random random = new Random();       // Global RNG
     String filename, contents;          // Stores filename and words in file
     ArrayList<Word> wordFrequencies;    // Stores list of unique words by frequency
     ArrayList<String> wordsList;        // Stores list of all words in file
@@ -55,16 +56,23 @@ public class MainActivity extends AppCompatActivity {
     Spinner temperatureSpinner;         // Temperature selection dropdown
     TextView temperatureParagraph;      // Temperature paragraph textbox
 
+    // Separate thread to perform count unplugged operations
+    // I separate it into another thread to run so that the file chooser dialog can close after
+    // executing code that reads contents of the file.
+    // This way, users are not stuck on the file chooser dialog, they are shown
+    // back to the upload page with the progress bar visible.
+    // Note that threads can only run a single time, so after each execution, I reinitialize
+    // the variable to a new thread performing the same action.
     Thread t = new Thread(() -> countUnplugged(contents));
 
-    @SuppressLint("Range")
     ActivityResultLauncher<Intent> fileSelected = // file selected listener
             // https://developer.android.com/training/data-storage/shared/documents-files
-            fileSelected = registerForActivityResult(
+            registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
                         if (result.getResultCode() == Activity.RESULT_OK) {
                             // https://stackoverflow.com/questions/29763405/android-get-text-from-pdf
+                            // result.getData() returns Intent; Intent.getData() returns Uri
                             Uri uri = result.getData().getData();
                             String content = null;
                             try {
@@ -83,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                                 // https://developer.android.com/training/secure-file-sharing/retrieve-info
                                 Cursor data = getContentResolver().query(uri, null, null, null, null);
                                 data.moveToFirst();
-                                filename = data.getString(data.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                                filename = data.getString(Math.max(data.getColumnIndex(OpenableColumns.DISPLAY_NAME), 0));
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -150,7 +158,10 @@ public class MainActivity extends AppCompatActivity {
                 .replace("!", "")
                 .length();
 
+        // Hide progress bar after finish
         runOnUiThread(this::prepareScreen);
+
+        // Change view
         showStatisticsScreen();
     }
 
@@ -223,7 +234,16 @@ public class MainActivity extends AppCompatActivity {
                 public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
                     // Get temperature from the 0-indexed position of selected item in the dropdown.
                     double temperature = Double.parseDouble(tempValues[pos]);
-                    // todo
+                    String paragraph = "";
+                    System.out.println(wordFrequencies);
+                    for (int i = 0; i < 200; i++) {
+                        String word = "";
+                        int index = 0;
+                        do {
+                            index = random.nextInt(wordsList.size());
+                        } while ((double) wordFrequencies.indexOf(new Word(wordsList.get(index), 0)) / wordFrequencies.size() <= temperature);
+                        paragraph += word;
+                    }
                 }
 
                 @Override
