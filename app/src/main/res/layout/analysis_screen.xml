@@ -15,6 +15,7 @@
         android:background="@drawable/roundcorner"
         android:backgroundTint="#1F1F1F"
         android:src="@drawable/trash"
+        android:contentDescription="Clear data"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/trash" />
@@ -28,6 +29,7 @@
         android:background="@drawable/roundcorner"
         android:backgroundTint="#1F1F1F"
         android:src="@drawable/save"
+        android:contentDescription="Save"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/save" />
@@ -37,7 +39,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/dm_sans_bold"
-        android:gravity="center_vertical"
+        android:gravity="center|center_vertical"
         android:paddingHorizontal="15sp"
         android:text="file.txt"
         android:textAlignment="center"
