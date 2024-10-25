@@ -33,19 +33,21 @@
 
     <TextView
         android:id="@+id/filenameText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
         android:fontFamily="@font/dm_sans_bold"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="15sp"
         android:text="file.txt"
-        android:textAlignment="textStart"
-        android:textSize="34sp"
+        android:textAlignment="center"
+        android:textSize="24sp"
         android:textStyle="bold"
         android:typeface="sans"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/deleteButton"
+        app:layout_constraintEnd_toStartOf="@+id/deleteButton"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/saveButton"
+        app:layout_constraintTop_toTopOf="@+id/deleteButton" />
 
     <GridView
         android:id="@+id/generalDataView"

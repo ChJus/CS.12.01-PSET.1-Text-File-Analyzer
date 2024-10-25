@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                     TextView text1 = view.findViewById(android.R.id.text1);
                     TextView text2 = view.findViewById(android.R.id.text2);
                     text1.setText(wordFrequencies.get(position).word);
-                    text2.setText(wordFrequencies.get(position).count + " occurrences.");
+                    text2.setText(wordFrequencies.get(position).count + " occurrences");
                     return view;
                 }
             };
@@ -252,6 +252,14 @@ public class MainActivity extends AppCompatActivity {
                 public void onNothingSelected(AdapterView<?> adapterView) {
                     // Do nothing.
                 }
+            });
+
+            saveButton.setOnClickListener(view -> {
+
+            });
+
+            deleteButton.setOnClickListener(view -> {
+                showUploadScreen();
             });
         });
     }
