@@ -3,6 +3,7 @@ package com.example.cs1201_pset1_text_file_analyzer;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -29,9 +30,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,6 +106,45 @@ public class MainActivity extends AppCompatActivity {
                             showLoading();
                             t.start();
                             t = new Thread(() -> countUnplugged(contents));
+                        }
+                    });
+
+    ActivityResultLauncher<Intent> saveData = // save to PDF listener
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Uri uri = result.getData().getData();
+                            try {
+                                Document document = new Document();
+
+                                int initialTempHeight = temperatureParagraph.getHeight();
+                                int listHeight = uniqueWordsList.getHeight();
+
+                                int newHeight = (uniqueWordsList.getChildAt(0).getMeasuredHeight() + uniqueWordsList.getDividerHeight()) * uniqueWordsList.getCount();
+                                temperatureParagraph.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+                                uniqueWordsList.setMinimumHeight(newHeight);
+
+                                View v1 = findViewById(R.id.analysisScreen).getRootView();
+                                v1.setDrawingCacheEnabled(true);
+                                Bitmap screen = Bitmap.createBitmap(v1.getDrawingCache());
+                                v1.setDrawingCacheEnabled(false);
+
+                                document.setPageSize(new Rectangle(screen.getWidth(), screen.getHeight()));
+
+                                PdfWriter.getInstance(document, getContentResolver().openOutputStream(uri));
+                                document.open();
+                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                screen.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                                byte[] byteArray = stream.toByteArray();
+                                addImage(document, byteArray);
+                                document.close();
+
+                                temperatureParagraph.setHeight(initialTempHeight);
+                                uniqueWordsList.setMinimumHeight(listHeight);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
 
@@ -242,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
                         do {
                             index = random.nextInt(wordsList.size());
                         } while (((double) wordFrequencies.indexOf(new Word(wordsList.get(index), 0)) / wordFrequencies.size()) > temperature);
-                        System.out.println(((double) wordFrequencies.indexOf(new Word(wordsList.get(index), 0)) / wordFrequencies.size()));
                         paragraph += wordsList.get(index).toLowerCase().trim() + " ";
                     }
                     temperatureParagraph.setText(paragraph);
@@ -255,12 +299,32 @@ public class MainActivity extends AppCompatActivity {
             });
 
             saveButton.setOnClickListener(view -> {
-
+                createFile();
             });
 
             deleteButton.setOnClickListener(view -> {
                 showUploadScreen();
             });
         });
+    }
+
+    // https://developer.android.com/training/data-storage/shared/documents-files
+    private void createFile() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_TITLE, "data.pdf");
+
+        saveData.launch(intent);
+    }
+
+    private static void addImage(Document document, byte[] byteArray) {
+        try {
+            Image image = Image.getInstance(byteArray);
+            image.scaleToFit(document.getPageSize());
+            document.add(image);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
