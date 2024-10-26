@@ -84,45 +84,107 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/generalDataView" />
 
-    <TextView
-        android:id="@+id/spinnerLabel"
-        android:layout_width="111dp"
-        android:layout_height="26dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:fontFamily="@font/dm_sans_bold"
-        android:gravity="center"
-        android:text="Temperature:"
-        android:textAlignment="center"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/uniqueWordsList" />
-
-    <Spinner
-        android:id="@+id/temperatureSpinner"
-        android:layout_width="137dp"
-        android:layout_height="51dp"
-        android:layout_marginStart="24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/spinnerLabel"
-        app:layout_constraintStart_toEndOf="@+id/spinnerLabel"
-        app:layout_constraintTop_toTopOf="@+id/spinnerLabel" />
-
-    <TextView
-        android:id="@+id/temperatureParagraph"
-        android:layout_width="0dp"
+    <ScrollView
+        android:layout_width="411dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/dm_sans"
-        android:paddingHorizontal="15sp"
-        android:paddingVertical="15sp"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:scrollbars="vertical"
-        android:text=""
-        android:textSize="16sp"
-        android:typeface="sans"
+        android:nestedScrollingEnabled="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/temperatureSpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/uniqueWordsList"
+        app:layout_constraintVertical_bias="1.0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:requiresFadingEdge="vertical">
+
+                <TextView
+                    android:id="@+id/temperatureSpinnerLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="0dp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:gravity="center"
+                    android:text="Temperature:"
+                    android:textAlignment="center"
+                    android:textSize="16sp" />
+
+                <Spinner
+                    android:id="@+id/temperatureSpinner"
+                    android:layout_width="137dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="24dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/temperatureParagraph"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="0dp"
+                android:fontFamily="@font/dm_sans"
+                android:paddingHorizontal="15sp"
+                android:paddingVertical="15sp"
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:scrollbars="vertical"
+                android:text=""
+                android:textSize="16sp"
+                android:typeface="sans" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:requiresFadingEdge="vertical">
+
+                <TextView
+                    android:id="@+id/nGramSpinnerLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="0dp"
+                    android:fontFamily="@font/dm_sans_bold"
+                    android:gravity="center"
+                    android:text="N-gram:"
+                    android:textAlignment="center"
+                    android:textSize="16sp" />
+
+                <Spinner
+                    android:id="@+id/nGramSpinner"
+                    android:layout_width="137dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="24dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/nGramParagraph"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="0dp"
+                android:fontFamily="@font/dm_sans"
+                android:paddingHorizontal="15sp"
+                android:paddingVertical="15sp"
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:scrollbars="vertical"
+                android:text=""
+                android:textSize="16sp"
+                android:typeface="sans" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

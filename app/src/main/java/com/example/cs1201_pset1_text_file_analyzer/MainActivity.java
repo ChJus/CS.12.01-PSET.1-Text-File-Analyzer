@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     ListView uniqueWordsList;           // List of unique words and number of occurrences
     Spinner temperatureSpinner;         // Temperature selection dropdown
     TextView temperatureParagraph;      // Temperature paragraph textbox
+    Spinner nGramSpinner;               // N-gram selection dropdown
+    TextView nGramParagraph;            // N-gram paragraph textbox
 
     // Separate thread to perform count unplugged operations
     // I separate it into another thread to run so that the file chooser dialog can close after
@@ -243,9 +245,12 @@ public class MainActivity extends AppCompatActivity {
             uniqueWordsList = findViewById(R.id.uniqueWordsList);
             temperatureSpinner = findViewById(R.id.temperatureSpinner);
             temperatureParagraph = findViewById(R.id.temperatureParagraph);
+            nGramSpinner = findViewById(R.id.nGramSpinner);
+            nGramParagraph = findViewById(R.id.nGramParagraph);
 
             filenameText.setText(filename);
             temperatureParagraph.setMovementMethod(new ScrollingMovementMethod());
+            nGramParagraph.setMovementMethod(new ScrollingMovementMethod());
 
             Spanned[] values = {Html.fromHtml("<font color=#3772F1>" + wordsList.size() + "</font><font color=#000000> words</font>"),
                     Html.fromHtml("<font color=#3772F1>" + sentenceCount + "</font><font color=#000000> sentences</font>"),
@@ -270,11 +275,15 @@ public class MainActivity extends AppCompatActivity {
                     "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"
             };
 
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
+            String[] nGramValues = new String[]{
+                    "2", "3", "4", "5", "6", "7", "8"
+            };
+
+            ArrayAdapter<String> temperatureSpinnerAdapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item, tempValues);
 
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            temperatureSpinner.setAdapter(spinnerAdapter);
+            temperatureSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            temperatureSpinner.setAdapter(temperatureSpinnerAdapter);
 
             temperatureSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -290,6 +299,55 @@ public class MainActivity extends AppCompatActivity {
                         paragraph += wordsList.get(index).toLowerCase().trim() + " ";
                     }
                     temperatureParagraph.setText(paragraph);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+                    // Do nothing.
+                }
+            });
+
+            ArrayAdapter<String> nGramSpinnerAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, nGramValues);
+
+            nGramSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            nGramSpinner.setAdapter(nGramSpinnerAdapter);
+
+            nGramSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                    // Get n-gram from the 0-indexed position of selected item in the dropdown.
+                    int n = Integer.parseInt(nGramValues[pos]);
+                    StringBuilder paragraph = new StringBuilder();
+
+                    String text = contents
+                            .replaceAll("[\r\n”“?!,.\"()]", " ")
+                            .replaceAll(" ['] ", " ")
+                            .replaceAll("([ ]+)", " ")
+                            .toLowerCase();
+
+                    String[] words = text.split(" ");
+                    String phrase = "";
+                    int count = 0;
+                    do {
+                        if ((phrase.isEmpty()) ||
+                                text.split(phrase.replaceFirst("^\\S+ ", "")).length == 1) {
+                            phrase = "";
+                            int randVal = random.nextInt(words.length - n);
+                            for (int i = 0; i < n; i++) {
+                                phrase += (words[randVal++]) + " ";
+                            }
+                        } else {
+                            phrase = phrase.replaceFirst("^\\S+ ", "");
+                            String[] segments = text.split(phrase);
+                            String addedWord = segments[random.nextInt(segments.length - 1) + 1].split(" ")[0].trim();
+                            phrase += addedWord + " ";
+                            paragraph.append(addedWord).append(" ");
+                            count++;
+                        }
+                    } while (count < 100);
+                    System.out.println(t);
+                    nGramParagraph.setText(paragraph.toString());
                 }
 
                 @Override
