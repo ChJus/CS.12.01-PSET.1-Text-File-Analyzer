@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 // https://developer.android.com/training/secure-file-sharing/retrieve-info#java
                                 if (getContentResolver().getType(uri).contains("pdf")) { // PDF
+                                    // Assembles text content from PDF by going page-by-page
                                     PdfReader reader = new PdfReader(getContentResolver().openInputStream(uri));
                                     int n = reader.getNumberOfPages();
                                     for (int i = 0; i < n; i++) {
@@ -94,10 +95,12 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     reader.close();
                                 } else { // plain-text file
+                                    // Reads plain-text file
                                     content = new String(getContentResolver().openInputStream(uri).readAllBytes());
                                 }
 
                                 // https://developer.android.com/training/secure-file-sharing/retrieve-info
+                                // Gets filename information
                                 Cursor data = getContentResolver().query(uri, null, null, null, null);
                                 data.moveToFirst();
                                 filename = data.getString(Math.max(data.getColumnIndex(OpenableColumns.DISPLAY_NAME), 0));
@@ -105,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
                                 throw new RuntimeException(e);
                             }
                             contents = content;
-                            showLoading();
-                            t.start();
+                            showLoading(); // Show loading progress bar
+                            t.start();     // Start text analysis in separate thread (to exit out of file selector dialog)
                             t = new Thread(() -> countUnplugged(contents));
                         }
                     });
@@ -120,18 +123,14 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 Document document = new Document();
 
-                                int initialTempHeight = temperatureParagraph.getHeight();
-                                int listHeight = uniqueWordsList.getHeight();
-
-                                int newHeight = (uniqueWordsList.getChildAt(0).getMeasuredHeight() + uniqueWordsList.getDividerHeight()) * uniqueWordsList.getCount();
-                                temperatureParagraph.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
-                                uniqueWordsList.setMinimumHeight(newHeight);
-
+                                // https://stackoverflow.com/questions/7200535/how-to-convert-views-to-bitmaps
+                                // Convert screen view to bitmap (image)
                                 View v1 = findViewById(R.id.analysisScreen).getRootView();
                                 v1.setDrawingCacheEnabled(true);
                                 Bitmap screen = Bitmap.createBitmap(v1.getDrawingCache());
                                 v1.setDrawingCacheEnabled(false);
 
+                                // Set PDF dimensions to be same as bitmap image
                                 document.setPageSize(new Rectangle(screen.getWidth(), screen.getHeight()));
 
                                 PdfWriter.getInstance(document, getContentResolver().openOutputStream(uri));
@@ -139,11 +138,10 @@ public class MainActivity extends AppCompatActivity {
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                 screen.compress(Bitmap.CompressFormat.PNG, 100, stream);
                                 byte[] byteArray = stream.toByteArray();
+
+                                // Write image to PDF
                                 addImage(document, byteArray);
                                 document.close();
-
-                                temperatureParagraph.setHeight(initialTempHeight);
-                                uniqueWordsList.setMinimumHeight(listHeight);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -160,14 +158,18 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Show upload screen initially on opening application
         showUploadScreen();
     }
 
+    // Hides progress bar after completing processing
     void prepareScreen() {
         progressBar.setIndeterminate(true);
         progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
+    // Shows application is running by giving visual progress bar indicator.
     void showLoading() {
         progressBar.setVisibility(ProgressBar.VISIBLE);
     }
@@ -238,6 +240,8 @@ public class MainActivity extends AppCompatActivity {
     public void showStatisticsScreen() {
         runOnUiThread(() -> {
             setContentView(R.layout.analysis_screen);
+
+            // Bind to visible components
             saveButton = findViewById(R.id.saveButton);
             deleteButton = findViewById(R.id.deleteButton);
             filenameText = findViewById(R.id.filenameText);
@@ -248,10 +252,14 @@ public class MainActivity extends AppCompatActivity {
             nGramSpinner = findViewById(R.id.nGramSpinner);
             nGramParagraph = findViewById(R.id.nGramParagraph);
 
+            // Display filename
             filenameText.setText(filename);
+
+            // Allow scrolling in textboxes
             temperatureParagraph.setMovementMethod(new ScrollingMovementMethod());
             nGramParagraph.setMovementMethod(new ScrollingMovementMethod());
 
+            // Display colorful statistics/text
             Spanned[] values = {Html.fromHtml("<font color=#3772F1>" + wordsList.size() + "</font><font color=#000000> words</font>"),
                     Html.fromHtml("<font color=#3772F1>" + sentenceCount + "</font><font color=#000000> sentences</font>"),
                     Html.fromHtml("<font color=#3772F1>" + wordFrequencies.size() + "</font><font color=#000000>  unique words</font>")};
@@ -259,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
             generalDataView.setAdapter(generalStatsAdapter);
 
             // https://stackoverflow.com/questions/16062569/how-to-construct-and-display-the-info-in-simple-list-item-2
+            // Displays unique words and occurrence count
             ArrayAdapter<Word> uniqueWordsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_2, android.R.id.text1, wordFrequencies.subList(0, 100)) {
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
@@ -271,20 +280,19 @@ public class MainActivity extends AppCompatActivity {
             };
             uniqueWordsList.setAdapter(uniqueWordsAdapter);
 
+            // Temperature paragraph spinner values
             String[] tempValues = new String[]{
                     "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"
             };
 
-            String[] nGramValues = new String[]{
-                    "2", "3", "4", "5", "6", "7", "8"
-            };
-
+            // Initialize spinner with options
             ArrayAdapter<String> temperatureSpinnerAdapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item, tempValues);
 
             temperatureSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             temperatureSpinner.setAdapter(temperatureSpinnerAdapter);
 
+            // Add listener on selecting item
             temperatureSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
@@ -307,12 +315,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+            // N-gram spinner options
+            String[] nGramValues = new String[]{
+                    "2", "3", "4", "5", "6", "7", "8"
+            };
+
+            // Create spinner with N-gram options
             ArrayAdapter<String> nGramSpinnerAdapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item, nGramValues);
 
             nGramSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             nGramSpinner.setAdapter(nGramSpinnerAdapter);
 
+            // Add listener on item selected
             nGramSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
@@ -320,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
                     int n = Integer.parseInt(nGramValues[pos]);
                     StringBuilder paragraph = new StringBuilder();
 
+                    // Clean content of punctuation
                     String text = contents
                             .replaceAll("[\r\n”“?!,.\"()]", " ")
                             .replaceAll(" ['] ", " ")
@@ -330,6 +346,9 @@ public class MainActivity extends AppCompatActivity {
                     String phrase = "";
                     int count = 0;
                     do {
+                        // Check if N-gram is empty or if there aren't any words following phrase
+                        // If so, generate a new N-gram phrase.
+                        // Note the regex removes the first word from the N-gram
                         if ((phrase.isEmpty()) ||
                                 text.split(phrase.replaceFirst("^\\S+ ", "")).length == 1) {
                             phrase = "";
@@ -338,16 +357,22 @@ public class MainActivity extends AppCompatActivity {
                                 phrase += (words[randVal++]) + " ";
                             }
                         } else {
+                            // Remove first word from N-gram
                             phrase = phrase.replaceFirst("^\\S+ ", "");
+
+                            // Find all occurrences of new phrase in text
                             String[] segments = text.split(phrase);
+
+                            // Select a random word from possible choices.
                             String addedWord = segments[random.nextInt(segments.length - 1) + 1].split(" ")[0].trim();
+
+                            // Add new word to N-gram and to paragraph
                             phrase += addedWord + " ";
                             paragraph.append(addedWord).append(" ");
-                            count++;
+                            count++; // Increment generated words count
                         }
                     } while (count < 100);
-                    System.out.println(t);
-                    nGramParagraph.setText(paragraph.toString());
+                    nGramParagraph.setText(paragraph.toString()); // Update interface with paragraph
                 }
 
                 @Override
@@ -356,10 +381,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+            // Set listener on clicking save button
             saveButton.setOnClickListener(view -> {
                 createFile();
             });
 
+            // Set listener on clicking clear data button
             deleteButton.setOnClickListener(view -> {
                 showUploadScreen();
             });
@@ -367,6 +394,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // https://developer.android.com/training/data-storage/shared/documents-files
+    // Opens file selector menu so user can choose where to save PDF file.
     private void createFile() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
