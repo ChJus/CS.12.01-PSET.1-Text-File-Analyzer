@@ -121,9 +121,11 @@ public class MainActivity extends AppCompatActivity {
                         if (result.getResultCode() == Activity.RESULT_OK) {
                             Uri uri = result.getData().getData();
                             try {
+                                // Effectively screenshots application screen and saves to a PDF.
                                 Document document = new Document();
 
                                 // https://stackoverflow.com/questions/7200535/how-to-convert-views-to-bitmaps
+                                // https://stackoverflow.com/questions/29730402/how-to-convert-android-view-to-pdf
                                 // Convert screen view to bitmap (image)
                                 View v1 = findViewById(R.id.analysisScreen).getRootView();
                                 v1.setDrawingCacheEnabled(true);
@@ -131,7 +133,9 @@ public class MainActivity extends AppCompatActivity {
                                 v1.setDrawingCacheEnabled(false);
 
                                 // Set PDF dimensions to be same as bitmap image
-                                document.setPageSize(new Rectangle(screen.getWidth(), screen.getHeight()));
+                                document.setPageSize(
+                                        new Rectangle(screen.getWidth() + document.leftMargin() + document.rightMargin(),
+                                                screen.getHeight() + document.topMargin() + document.bottomMargin()));
 
                                 PdfWriter.getInstance(document, getContentResolver().openOutputStream(uri));
                                 document.open();
@@ -140,7 +144,8 @@ public class MainActivity extends AppCompatActivity {
                                 byte[] byteArray = stream.toByteArray();
 
                                 // Write image to PDF
-                                addImage(document, byteArray);
+                                addImage(document, byteArray, new Rectangle(screen.getWidth(), screen.getHeight()));
+
                                 document.close();
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -301,6 +306,10 @@ public class MainActivity extends AppCompatActivity {
                     String paragraph = "";
                     for (int i = 0; i < 200; i++) {
                         int index;
+
+                        // Randomly select a word from the list of words and check to see if
+                        // the selected word is within the top temperature% of words by
+                        // frequency. Add to paragraph when such a word is found and continue.
                         do {
                             index = random.nextInt(wordsList.size());
                         } while (((double) wordFrequencies.indexOf(new Word(wordsList.get(index), 0)) / wordFrequencies.size()) > temperature);
@@ -404,10 +413,10 @@ public class MainActivity extends AppCompatActivity {
         saveData.launch(intent);
     }
 
-    private static void addImage(Document document, byte[] byteArray) {
+    private static void addImage(Document document, byte[] byteArray, Rectangle dimension) {
         try {
             Image image = Image.getInstance(byteArray);
-            image.scaleToFit(document.getPageSize());
+            image.scaleToFit(dimension);
             document.add(image);
         } catch (Exception e) {
             e.printStackTrace();
